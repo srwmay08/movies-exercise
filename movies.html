@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Movie Rental Homework</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<style>
+		.container-top {
+			margin-top: 20px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container container-top">
+		<p>MovieCo has released some data about all of their rentals in 2014. As a competitor, your job is to go though the data and get some insigts about your competitor!</p>
+		<p>Two questions are below, and we've retrieved the data for you... but it's probably not in the format you want. You'll have to go through and get the data to reveal the answers using your newfound skills with arrays, regex, and strings!</p>
+	</div>
+	<div class="container">
+		<table>
+			<tr>
+				<td>The user with the most checkouts is:</td>
+				<td><span id="most-checkouts"></span></td>
+			</tr>
+			<tr>
+				<td>The month with the most checkouts is:</td>
+				<td><span id="most-month"></span></td>
+			</tr>
+		</table>
+	</div>
+	<script>
+		/********
+		 This is boilerplate code to retrieve the movies and rental data from the server.
+		 Don't worry about how it works just yet (although you're welcome to read it).
+		 Head on down to "userFunction" below, which is where you'll write your code.
+		********/
+		function loadDoc(uri, callback) {
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					callback.call(this, xmlhttp.responseText);
+				}
+			};
+			xmlhttp.open("GET", uri, true);
+			xmlhttp.send();
+		}
+		var rentalsArray;
+		var loadedRentals = function(rentalsJSON) {
+			rentalsArray = JSON.parse(rentalsJSON);
+			userFunction();
+		};
+		loadDoc("https://aerekos.herokuapp.com/getrentalsfile", loadedRentals);
+	</script>
+	<script>
+		function userFunction() {
+			
+			//console.log(rentalsArray);
+			
+			var testRentals = [
+				"User5 44 July",
+				"User5 36 June",
+				"User7 12 May",
+				"User8 13 July"
+			];
+			
+			function splitUserRow(stringUser) {
+				return stringUser.split(" ");
+			}
+			console.log( splitUserRow(testRentals[0]) [0] == "User5");
+			console.log( splitUserRow(testRentals[0]) [1] == "44");
+			console.log( splitUserRow(testRentals[0]) [2] == "July");
+			
+			//testRentals = testRentals.map(splitUserRow);
+			
+			function splitRentalString(rentalAsString) {
+				var asArrays = [];
+				for (var i = 0; i < rentalAsString.length; i++) {
+					asArrays.push(splitUserRow(rentalAsString[i]));
+				}
+			}
+			
+			function getKeyWithMaxValue(obj) {
+				var maxSoFar = 0;
+				var maxKeySoFar = "";
+				for (var key in obj) {
+					if (obj[key] > maxSofar){
+						maxSoFar = obj[key];
+						maxKeySoFar = key;
+					}
+				}
+				return maxKeySoFar;
+			}
+			
+//			console.log(getKeyWithMaxValue({"a":2,"b":4,"c":3}) == "b");
+			
+			function getUserWithMostCheckouts(rentals) {
+				var counts = {};
+				var rentalsAsArrays = splitRentalString(rentals);
+				for (var i = 0; i < rentalsAsArrays.length; i++){
+					var userNum = rentalsAsArrays[i][0];
+					
+					if(counts[userNum] == undefined) {
+						counts[userNum] = 1;
+					} else {
+						counts[userNum] += 1;
+					}
+				}
+				return getKeyWithMaxValue(counts);
+			}
+			
+			
+			console.log(getUserWithMostCheckouts(testRentals) == "User5");
+//			console.log(getMonthWithMostCheckouts(testRentals) == "July");
+
+			//Which user had the most checkouts.
+			document.getElementById('most-checkouts').innerHTML = getUserWithMostCheckouts(rentalsArray);
+
+			//Which month has the most checkouts?
+			document.getElementById('most-month').innerHTML = "???";
+		}
+	</script>
+</body>
+</html>
